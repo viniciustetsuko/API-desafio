@@ -3,8 +3,8 @@ const AppError = require("../utils/App.Error");
 
 class MoviesController {
     async create(request, response) {
-        const { title, description, rating, movies_tags } = request.body; 
-        const { user_id } = request.params;
+        const { title, description, rating, tags } = request.body; 
+        const  user_id  = request.user.id;
         
 
         if (rating < 1 || rating > 5) {
@@ -21,7 +21,7 @@ class MoviesController {
 
         
 
-        const moviesTagsInsert = movies_tags.map(name => {
+        const moviesTagsInsert = tags.map(name => {
             return {
                 movies_id,
                 name,
@@ -33,7 +33,7 @@ class MoviesController {
 
         await knex("movies_tags").insert(moviesTagsInsert);
 
-        response.json();
+        return response.json();
     }
 
     async show(request, response) {
@@ -60,7 +60,8 @@ class MoviesController {
     }
 
     async index(request, response) {
-        const { user_id, title, movies_tags } = request.query;
+        const { title, movies_tags } = request.query;
+        const user_id = request.user.id;
 
         let movies;
 
@@ -85,11 +86,15 @@ class MoviesController {
             .where({ user_id})
             .whereLike("title", `%${title}%`)
             .orderBy("title");
+
+
         }
 
         const userMovies_tags = await knex("movies_tags").where({ user_id });
 
         const moviesWithTags = movies.map(movie => {
+            console.log(movie.rating);
+
             const movieTags = userMovies_tags.filter(tag => tag.movies_id === movie.id);
 
             return {
