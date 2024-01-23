@@ -1,3 +1,4 @@
+require("dotenv/config");
 require("express-async-errors");
 const express = require("express");
 const routes = require("./routes");
@@ -28,5 +29,5 @@ app.use(( error, request, response, next ) => {
 });
 migrationRun();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is ruinning at Port: ${PORT}`));
